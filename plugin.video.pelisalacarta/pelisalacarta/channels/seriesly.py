@@ -31,7 +31,8 @@ def isGeneric():
 """Handler para library_service"""
 def episodios(item):
     # Obtiene de nuevo los tokens
-    episode_list = serie_capitulos(item)
+    episode_list = serie_seasons(item)
+    #episode_list = serie_capitulos(item)
     for episode in episode_list:
         episode.extra = item.extra
     return episode_list
@@ -91,7 +92,8 @@ def categorias(item):
         itemlist.append( Item(channel=__channel__, title="Pendientes", action="categoria", url='Pendientes', extra=item.url) )
         itemlist.append( Item(channel=__channel__, title="Peliculas Mas Vistas", action="mas_vistas", url=item.url ) )
         itemlist.append( Item(channel=__channel__, title="Peliculas Por Categorias", action="menu_cat", url=item.url, extra="cat" ) )
-        
+        #itemlist.append( Item(channel=__channel__, title="Manolito caramierda", action="manolito", url=item.url) )
+
    
     elif item.url=="series":
         itemlist.append( Item(channel=__channel__, title="Viendo", action="categoria", url='Viendo', extra=item.url) )
@@ -188,17 +190,73 @@ def categoria(item):
     itemlist = sorted( itemlist , key=lambda item: item.title)
     return itemlist
 
+def manolito(item):
+    itemlist = []
+    itemlist.append( Item(channel=__channel__, title="Si, po toma", action="categoria", url='Pendientes', extra=item.url) )
+    itemlist.append( Item(channel=__channel__, title="Nunca lo sabremos", action="mas_vistas", url=item.url ) )
+    itemlist.append( Item(channel=__channel__, title="O noooh", action="menu_cat", url=item.url, extra="cat" ) )
+    itemlist.append( Item(channel=__channel__, title="Manolito caramierda de nuevo", action="manolito", url=item.url) )
+    return itemlist
+
+def serie_seasons(item):
+    """
+    Show list of seasons
+    """
+    logger.info("[seriesly.py serie_seasons")
+    print "# Series Seasons #"
+    # Get tokens again
+    auth_token, user_token = getCredentials()
+
+    post = 'auth_token=%s&user_token=%s' % ( qstr(auth_token), qstr(user_token) )
+    serieInfo = load_json(scrapertools.cache_page(item.url, post=post))
+
+    if "error" in serieInfo and serieInfo["error"]:
+        error_message(serieInfo["error"])
+        return []
+    
+    if serieInfo == None:
+        serieInfo = {}
+
+    if (not serieInfo.has_key('seasons_episodes')) or serieInfo['seasons_episodes'] == None:
+        serieInfo['seasons_episodes'] = []
+
+    seasonList = []
+
+    for i in serieInfo["seasons_episodes"]:
+         this_season = serieInfo['seasons_episodes'][i][0]
+         seasonList.append(
+            Item(
+                channel=__channel__,
+                action = 'serie_capitulos',
+                title = 'Temporada %s' % this_season['season'],
+                url = item.url,
+                thumbnail = item.thumbnail,
+                plot = "",
+                show = item.show,
+                extra = item.extra
+                )
+            )
+    seasonList = sorted( seasonList , key=lambda item: item.title)
+    print "Extra pasado es:"
+    print item.extra
+    return seasonList
+
+
 def serie_capitulos(item):
-   
+    print "# Serie Capitulos #"
+    print "Temporada: ", item.title[-1]
     logger.info('[seriesly.py] serie_capitulos')
    
     # Obtiene de nuevo los tokens
     auth_token, user_token = getCredentials()
    
+
+    season_number = item.title[-1]
     # Extrae las entradas (carpetas)
     post = 'auth_token=%s&user_token=%s' % ( qstr(auth_token), qstr(user_token) )
     serieInfo = load_json(scrapertools.cache_page(item.url, post=post))
 
+    # ~ Todos los videos tienen error=0
     if "error" in serieInfo:
         if serieInfo["error"]!=0:
             error_message(serieInfo["error"])
@@ -214,11 +272,14 @@ def serie_capitulos(item):
    
     # Juntamos todos los episodios con enlaces en una sola lista
     episodeList=[]
+    print "All episodes in a single list"
+    
     for i in serieInfo["seasons_episodes"]:
-        for j in serieInfo["seasons_episodes"][i]:
-            if j['haveLinks']: episodeList.append(j)
+        if str(serieInfo['seasons_episodes'][i][0]['season']) == str(season_number):
+            for j in serieInfo["seasons_episodes"][i]:
+                if j['haveLinks']: episodeList.append(j)
 
-    logger.info('[seriesly serie_capitulos]hay %d capitulos' % len(episodeList))
+    logger.info('[seriesly serie_capitulos] hay %d capitulos' % len(episodeList))
 
     itemlist = []
     for episode in episodeList:
@@ -258,9 +319,7 @@ def serie_capitulos(item):
 
     if config.get_platform().startswith("xbmc") or config.get_platform().startswith("boxee"):
         itemlist.append( Item(channel='seriesly', title="Añadir esta serie a la biblioteca de XBMC", url=item.url, action="add_serie_to_library", extra="serie_capitulos###", show=item.show) )
-
     return itemlist
-
 
 def mas_vistas(item):
 
@@ -425,11 +484,11 @@ def generate_item(video , tipo, auth_token):
             return Item()
         if "seasons"==0:
 
-            action = 'serie_capitulos'
+            action = 'serie_seasons'
             title = '%(name)s Serie' % video
 
         else:
-            action = 'serie_capitulos'
+            action = 'serie_seasons'
             title = '%(name)s (%(seasons)d Temporadas) (%(episodes)d Episodios)' % video
 
     elif tipo =="movies" or tipo == "documentaries":
