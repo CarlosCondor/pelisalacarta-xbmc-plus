@@ -17,7 +17,7 @@ Instalación
 - Descarga el .zip del código fuente desde el botón que aparece en Github
 - Copia el .zip en el sistema donde tengas instalado tu XBMC, ya sea por SSH, por SD o por USB
 - Instala el plugin desde la opción de XBMC -> Instalar desde .zip.
-- 
+
 Puedes acceder a esta acción entrando en Video -> Addons de video -> Conseguir más -> .. (Atras) -> .. (Atras) -> Instalar desde .zip
 
 Mejoras
