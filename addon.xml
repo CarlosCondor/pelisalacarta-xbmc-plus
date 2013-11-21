@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.pelisalacartaplus"
+    name="pelisalacartaplus"
+    version="3.2.64"
+    provider-name="tvalacarta-carloscondor">
+  <requires>
+    <import addon="xbmc.python" version="2.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="es">Películas y series a la carta</summary>
+    <description lang="es">Plugin en castellano para ver películas y series online, publicadas por más de 70 sitios en servidores de video online - Nuevas funcionalidades extra </description>
+    <summary lang="en">Movies and TV Shows on demand (Spanish)</summary>
+    <description lang="en">Spanish plugin for watching Movies and TV Shows on demand. It uses more than 70 different source sites that provide streamed media contents</description>
+    <summary lang="hu">Filmek és TV musorok VoD (spanyol)</summary>
+    <description lang="hu">Spanyol kiegészíto melynek segítségével filmeket és TV musorokat lehet nézni igény szerint választhatóan "on-demand", több mint 70 különbözo forrásoldal használatával</description>
+    <platform>all</platform>
+  </extension>
+  <extension point="xbmc.service" library="library_service.py" start="login|startup">
+  </extension>
+</addon>
