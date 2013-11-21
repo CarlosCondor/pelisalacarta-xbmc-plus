@@ -8,4 +8,6 @@ Updated to version 3.2.64
 ES - Mejoras
 ============
 
-- Los capitulos se seleccionan por temporada en lugar de mostrar todas las temporadas en la misma lista.
+- Series.ly
+
+  - Los capitulos se seleccionan por temporada en lugar de mostrar todas las temporadas en la misma lista.
